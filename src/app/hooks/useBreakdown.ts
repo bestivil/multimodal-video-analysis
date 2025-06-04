@@ -16,7 +16,7 @@ export const useBreakdown = ({
   URL: string;
   transcript: TranscriptItem[] | undefined;
 }) => {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
+  const apiKey = process.env.GEMINI_API_KEY as string;
 
   const mergedTranscript = transcript
     ? transcript.map((item) => `${item.text}`).join(" \n\n")
