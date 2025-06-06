@@ -1,3 +1,5 @@
+"use server";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { YoutubeTranscript } from "youtube-transcript";
 
@@ -5,7 +7,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { videoId } = req.query;
+  const { URL: videoId } = req.query;
   if (!videoId) {
     return res.status(400).json({
       success: false,
@@ -13,9 +15,7 @@ export default async function handler(
     });
   }
 
-  const data = await YoutubeTranscript.fetchTranscript(
-    Array.isArray(videoId) ? videoId[0] : videoId
-  );
+  const data = await YoutubeTranscript.fetchTranscript(videoId as string);
 
   return res.status(200).json({
     success: true,

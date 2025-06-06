@@ -29,7 +29,9 @@ export const Tabs = ({
     data: transcriptData,
     loading: transcriptLoading,
     error: transcriptError,
-  } = useTranscript(submittedURL);
+  } = useTranscript({
+    URL: submittedURL,
+  });
 
   const {
     data: breakdownData,
@@ -46,10 +48,14 @@ export const Tabs = ({
     : 0;
 
   useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["breakdown", "transcript", submittedURL],
-    });
-  }, [submittedURL, transcriptData, queryClient]);
+    if (
+      !transcriptData ||
+      (Array.isArray(transcriptData) && transcriptData.length === 0)
+    ) {
+      queryClient.invalidateQueries({ queryKey: ["transcript"] });
+      queryClient.invalidateQueries({ queryKey: ["breakdown"] });
+    }
+  }, [transcriptData, queryClient]);
 
   return (
     <div className="w-full max-w-2xl">

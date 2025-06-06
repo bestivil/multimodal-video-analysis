@@ -16,53 +16,27 @@ export const useBreakdown = ({
   URL: string;
   transcript: TranscriptItem[] | undefined;
 }) => {
-  const apiKey = process.env.GEMINI_API_KEY as string;
-
   const mergedTranscript = transcript
     ? transcript.map((item) => `${item.text}`).join(" \n\n")
     : " ";
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    systemInstruction: `You are an expert at summarizing 
-      and breaking down YouTube videos. Given a YouTube video URL, provide a sectioned breakdown of the video's content. 
-      Each section should have a title and a concise summary.
-      ONLY return the breakdown in JSON format with with an array of sections, each with a startTime, endTime, and summary, in the format [{startTime: number, endTime: number, title: string, summary: string}]. DO NOT include any other text in your response.`,
-  });
-
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["breakdown", URL, transcript],
     queryFn: async () => {
-      if (!URL || !transcript) {
+      if (mergedTranscript.trim().length !== 0) {
         return {
           data: undefined,
-          loading: true,
-          error: new Error("No URL or transcript provided"),
+          loading: false,
+          error: null,
         };
       }
+      const response = await fetch(`/api/get-breakdown?URL=${URL}`, {
+        method: "POST",
+        body: JSON.stringify({ transcript: mergedTranscript }),
+      });
 
-      const body = {
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: `Please provide a sectioned breakdown of the following YouTube video ${URL} using the transcript: ${mergedTranscript}. `,
-              },
-            ],
-          },
-        ],
-      };
-
-      const response = await model.generateContent(body);
-      const rawText = await response.response.text();
-      const cleaned = rawText
-        .replace(/^```json\s*/, "")
-        .replace(/```[\s\n]*$/g, "")
-        .trim();
-      const json = JSON.parse(cleaned);
-      return json;
+      const result = await response.json();
+      return result;
     },
     enabled: !!URL && !!transcript,
     staleTime: Infinity,
@@ -71,7 +45,7 @@ export const useBreakdown = ({
   });
 
   return {
-    data: data as Breakdown[] | undefined,
+    data: data?.data as Breakdown[] | undefined,
     loading: isLoading,
     error,
     refetch,

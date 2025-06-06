@@ -3,8 +3,9 @@ import { formatTime } from "@/lib/utils";
 
 export type TranscriptItem = {
   text: string;
-  start: number;
   duration: number;
+  offset: number;
+  lang: string;
 };
 
 type TranscriptProps = {
@@ -39,9 +40,9 @@ export function Transcript({
       <div className="space-y-2 max-w-2xl mx-auto mt-8">
         {data.map((item: TranscriptItem, idx: number) => {
           const isActive =
-            item.start <= timestamp &&
+            item.offset <= timestamp &&
             (typeof data[idx + 1] === "undefined" ||
-              timestamp < data[idx + 1].start);
+              timestamp < data[idx + 1].offset);
           return (
             <div
               key={idx}
@@ -49,9 +50,9 @@ export function Transcript({
                 isActive ? "bg-gray-200" : ""
               }`}
               onClick={() => {
-                setTimestamp(item.start);
+                setTimestamp(item.offset);
                 if (onSeek) {
-                  onSeek(item.start);
+                  onSeek(item.offset);
                 }
               }}
             >
@@ -60,7 +61,7 @@ export function Transcript({
                   variant="ghost"
                   className="min-w-[48px] text-xs text-gray-600"
                 >
-                  {formatTime(item.start)}
+                  {formatTime(item.offset)}
                 </Button>
                 <span>{item.text}</span>
               </div>

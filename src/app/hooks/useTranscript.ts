@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 
-export const useTranscript = (URL: string) => {
-  const videoId = extractVideoId(URL);
+export const useTranscript = ({ URL }: { URL: string }) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["transcript", URL],
     queryFn: async () => {
-      const response = await fetch(`/api/get-transcript?videoId=${videoId}`);
+      const response = await fetch(`/api/get-transcript?URL=${URL}`);
       const result = await response.json();
-      return result.transcript || "";
+      return result.data;
     },
     enabled: !!URL,
     staleTime: Infinity,
@@ -16,15 +15,9 @@ export const useTranscript = (URL: string) => {
   });
 
   return {
-    data: data ?? "",
+    data,
     loading: isLoading,
     error,
     refetch,
   };
 };
-
-function extractVideoId(url: string) {
-  if (!url) return "";
-  const parts = url.split("=");
-  return parts[1] || "";
-}
