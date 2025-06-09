@@ -20,10 +20,11 @@ export const useBreakdown = ({
     ? transcript.map((item) => `${item.text}`).join(" \n\n")
     : " ";
 
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["breakdown", URL, transcript],
     queryFn: async () => {
-      if (mergedTranscript.trim().length !== 0) {
+      if (mergedTranscript.trim().length === 0) {
         return {
           data: undefined,
           loading: false,

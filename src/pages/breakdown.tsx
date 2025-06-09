@@ -1,6 +1,9 @@
 import { Breakdown as BreakdownContentType } from "../app/hooks/useBreakdown";
 import { Button } from "@/components/ui/button";
 import { formatTime } from "@/lib/utils";
+import { useEffect } from "react";
+import localforage from "localforage";
+import { LoadingAnimation } from "@/components/loading-animations";
 
 type BreakdownProps = {
   data: BreakdownContentType[] | undefined;
@@ -21,9 +24,23 @@ export function Breakdown({
   setTimestamp,
   onSeek,
 }: BreakdownProps) {
+  useEffect(() => {
+    if (url && data && Array.isArray(data)) {
+      (async () => {
+        try {
+          const record = (await localforage.getItem<any>(url)) || {};
+          record.breakdown = data;
+          await localforage.setItem(url, record);
+        } catch (error) {
+          console.error("Failed to save breakdown for recent videos:", error);
+        }
+      })();
+    }
+  }, [url, data]);
+
   if (!url) return null;
   if (loading) {
-    return <div>Loading breakdown...</div>;
+    return <LoadingAnimation />;
   }
   if (error) {
     return <div className="text-red-500">Error: {error.message}</div>;

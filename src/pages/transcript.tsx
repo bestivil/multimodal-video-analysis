@@ -1,5 +1,9 @@
+import { LoadingAnimation } from "@/components/loading-animations";
 import { Button } from "@/components/ui/button";
 import { formatTime } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { useEffect, useRef } from "react";
+import localforage from "localforage";
 
 export type TranscriptItem = {
   text: string;
@@ -27,9 +31,33 @@ export function Transcript({
   setTimestamp,
   onSeek,
 }: TranscriptProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    if (activeRef.current && containerRef.current) {
+      activeRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [timestamp]);
+
+  useEffect(() => {
+    if (url && data && Array.isArray(data)) {
+      (async () => {
+        try {
+          const record = (await localforage.getItem<any>(url)) || {};
+          record.transcript = data;
+          await localforage.setItem(url, record);
+        } catch (error) {
+          console.error("Failed to save transcript for recent videos:", error);
+        }
+      })();
+    }
+  }, [url, data]);
+
   if (!url) return null;
   if (loading) {
-    return <div>Loading transcript...</div>;
+    return <LoadingAnimation />;
   }
   if (error) {
     return <div className="text-red-500">Error: {error.message}</div>;
@@ -37,7 +65,10 @@ export function Transcript({
 
   if (data && Array.isArray(data)) {
     return (
-      <div className="space-y-2 max-w-2xl mx-auto mt-8">
+      <div
+        ref={containerRef}
+        className="relative max-h-[500px] overflow-y-auto space-y-2 max-w-2xl mx-auto mt-8"
+      >
         {data.map((item: TranscriptItem, idx: number) => {
           const isActive =
             item.offset <= timestamp &&
@@ -45,10 +76,11 @@ export function Transcript({
               timestamp < data[idx + 1].offset);
           return (
             <div
+              ref={isActive ? activeRef : null}
               key={idx}
-              className={`rounded p-4 mb-2 hover:cursor-pointer ${
-                isActive ? "bg-gray-200" : ""
-              }`}
+              className={`rounded p-4 mb-2 hover:cursor-pointer hover:bg-muted-foreground/10 ${
+                isActive ? "bg-muted-foreground/10" : ""
+              } ${theme === "dark" ? "bg-muted-foreground/5" : ""} `}
               onClick={() => {
                 setTimestamp(item.offset);
                 if (onSeek) {

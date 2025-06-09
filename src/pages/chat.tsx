@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import localforage from "localforage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,9 +43,19 @@ export function Chat({
     }
   }, [messages]);
 
-  if (!url) {
-    return <div>Please send a video to start chat.</div>;
-  }
+  useEffect(() => {
+    if (url) {
+      (async () => {
+        try {
+          const record = (await localforage.getItem<any>(url)) || {};
+          record.chat = messages;
+          await localforage.setItem(url, record);
+        } catch (error) {
+          console.error("Failed to save chat for recent videos:", error);
+        }
+      })();
+    }
+  }, [url, messages]);
 
   return (
     <div className="w-full max-w-2xl flex flex-col">

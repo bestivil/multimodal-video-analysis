@@ -12,13 +12,13 @@ export function VideoURLInput({
   const [youtubeURL, setYoutubeURL] = useState<string>("");
 
   return (
-    <div className="flex flex-row items-center justify-center  gap-4">
+    <div className="flex flex-col md:flex-row items-center justify-center  gap-4">
       <Input
         type="text"
         placeholder={CONST_PLACEHOLDER_URL}
         value={youtubeURL}
         onChange={(e) => setYoutubeURL(e.target.value)}
-        className="w-[500px]"
+        className="w-[500px] border-gray-300 dark:border-gray-700"
       />
       <Button
         onClick={() =>

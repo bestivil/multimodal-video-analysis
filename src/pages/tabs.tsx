@@ -23,12 +23,12 @@ export const Tabs = ({
   setSeekTimestamp,
 }: TabsProps) => {
   const [activeTab, setActiveTab] = useState<Tab>("transcript");
-  const queryClient = useQueryClient();
 
   const {
     data: transcriptData,
     loading: transcriptLoading,
     error: transcriptError,
+    refetch: refetchTranscript,
   } = useTranscript({
     URL: submittedURL,
   });
@@ -37,6 +37,7 @@ export const Tabs = ({
     data: breakdownData,
     loading: breakdownLoading,
     error: breakdownError,
+    refetch: refetchBreakdown,
   } = useBreakdown({
     URL: submittedURL,
     transcript: transcriptData || undefined,
@@ -48,18 +49,28 @@ export const Tabs = ({
     : 0;
 
   useEffect(() => {
-    if (
-      !transcriptData ||
-      (Array.isArray(transcriptData) && transcriptData.length === 0)
-    ) {
-      queryClient.invalidateQueries({ queryKey: ["transcript"] });
-      queryClient.invalidateQueries({ queryKey: ["breakdown"] });
+    if (!transcriptData || transcriptLoading) {
+      refetchTranscript();
     }
-  }, [transcriptData, queryClient]);
+  }, []);
+
+  useEffect(() => {
+    if (
+      !breakdownData ||
+      breakdownLoading ||
+      (Array.isArray(breakdownData) && breakdownData.length === 0)
+    ) {
+      refetchBreakdown();
+    }
+  }, []);
 
   return (
-    <div className="w-full max-w-2xl">
-      <div className="flex border-gray-200 mb-4 gap-2 justify-around">
+    <div className={`w-full min-w-[40%] max-w-2xl `}>
+      <div
+        className={`flex border-gray-200 mb-4 gap-2 justify-around ${
+          !submittedURL && "opacity-50 pointer-events-none select-none"
+        }`}
+      >
         {TABS.map((tab) => (
           <Button
             key={tab}
@@ -72,6 +83,22 @@ export const Tabs = ({
         ))}
       </div>
       <div>
+        {activeTab === "transcript" &&
+          (!submittedURL ? (
+            <div className="flex border-gray-200 text-red-400 mb-4 gap-2 justify-around">
+              <h4>Please enter a valid YouTube URL</h4>
+            </div>
+          ) : (
+            <Transcript
+              data={transcriptData}
+              loading={transcriptLoading}
+              error={transcriptError}
+              url={submittedURL}
+              timestamp={timestamp}
+              setTimestamp={setTimestamp}
+              onSeek={setSeekTimestamp}
+            />
+          ))}
         {activeTab === "breakdown" && (
           <Breakdown
             data={breakdownData}
@@ -83,17 +110,7 @@ export const Tabs = ({
             onSeek={setSeekTimestamp}
           />
         )}
-        {activeTab === "transcript" && (
-          <Transcript
-            data={transcriptData}
-            loading={transcriptLoading}
-            error={transcriptError}
-            url={submittedURL}
-            timestamp={timestamp}
-            setTimestamp={setTimestamp}
-            onSeek={setSeekTimestamp}
-          />
-        )}
+
         {activeTab === "chat" && (
           <Chat
             url={submittedURL}

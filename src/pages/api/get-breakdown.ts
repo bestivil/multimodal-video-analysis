@@ -10,8 +10,6 @@ export default async function handler(
   const { URL } = req.query;
   const { transcript } = req.body;
 
-  console.log(transcript);
-
   if (!URL) {
     return res.status(400).json({
       success: false,
@@ -23,7 +21,7 @@ export default async function handler(
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash-preview-05-20",
     systemInstruction: `You are an expert at summarizing 
-      and breaking down YouTube videos. Given a YouTube video URL, provide a sectioned breakdown of the video's content. 
+      and breaking down YouTube videos. Given a YouTube video's transcript, provide a sectioned breakdown of the video's content. 
       Each section should have a title and a concise summary.
       ONLY return the breakdown in JSON format with with an array of sections, each with a startTime, endTime, and summary, in the format [{startTime: number, endTime: number, title: string, summary: string}]. DO NOT include any other text in your response.`,
   });
@@ -34,7 +32,7 @@ export default async function handler(
         role: "user",
         parts: [
           {
-            text: `Please provide a sectioned breakdown of the following YouTube video ${URL} using the transcript: ${transcript}. `,
+            text: `Please provide a sectioned breakdown of a YouTube video that has the following transcript: ${transcript}, and the video URL is ${URL}. `,
           },
         ],
       },
