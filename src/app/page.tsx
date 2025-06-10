@@ -20,8 +20,6 @@ function Home() {
     setSeekTimestamp(null);
   }, [submittedURL]);
 
-  const validURL = submittedURL.includes("youtube.com");
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark">

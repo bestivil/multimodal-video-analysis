@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Breakdown } from "./breakdown";
 import { Transcript } from "./transcript";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Chat } from "./chat";
 import { useBreakdown } from "@/app/hooks/useBreakdown";
 import { useTranscript } from "@/app/hooks/useTranscript";
-import { useQueryClient } from "@tanstack/react-query";
+
 const TABS = ["transcript", "breakdown", "chat"] as const;
 type Tab = (typeof TABS)[number];
 

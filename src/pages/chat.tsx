@@ -47,7 +47,10 @@ export function Chat({
     if (url) {
       (async () => {
         try {
-          const record = (await localforage.getItem<any>(url)) || {};
+          const record =
+            (await localforage.getItem<{
+              chat: ProcessedChatMessage[];
+            }>(url)) || {};
           record.chat = messages;
           await localforage.setItem(url, record);
         } catch (error) {

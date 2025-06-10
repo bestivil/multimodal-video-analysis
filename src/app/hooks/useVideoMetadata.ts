@@ -48,11 +48,12 @@ export async function fetchVideoMetadata(url: string | undefined) {
       thumbnail: data.thumbnail_url,
       error: null,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return {
       title: null,
       thumbnail: null,
-      error: err.message || "Failed to fetch video metadata",
+      error:
+        err instanceof Error ? err.message : "Failed to fetch video metadata",
     };
   }
 }

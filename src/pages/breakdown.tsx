@@ -28,7 +28,10 @@ export function Breakdown({
     if (url && data && Array.isArray(data)) {
       (async () => {
         try {
-          const record = (await localforage.getItem<any>(url)) || {};
+          const record =
+            (await localforage.getItem<{
+              breakdown: BreakdownContentType[];
+            }>(url)) || {};
           record.breakdown = data;
           await localforage.setItem(url, record);
         } catch (error) {

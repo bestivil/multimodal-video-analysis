@@ -45,7 +45,10 @@ export function Transcript({
     if (url && data && Array.isArray(data)) {
       (async () => {
         try {
-          const record = (await localforage.getItem<any>(url)) || {};
+          const record =
+            (await localforage.getItem<{
+              transcript: TranscriptItem[];
+            }>(url)) || {};
           record.transcript = data;
           await localforage.setItem(url, record);
         } catch (error) {
