@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Breakdown } from "./breakdown";
-import { Transcript } from "./transcript";
+import Breakdown from "./breakdown";
+import Transcript from "./transcript";
 import { useState } from "react";
-import { Chat } from "./chat";
+import Chat from "./chat";
 import { useBreakdown } from "@/app/hooks/useBreakdown";
 import { useTranscript } from "@/app/hooks/useTranscript";
 
@@ -16,12 +16,12 @@ type TabsProps = {
   setSeekTimestamp: (timestamp: number) => void;
 };
 
-export const Tabs = ({
+const Tabs: React.FC<TabsProps> = ({
   submittedURL,
   timestamp,
   setTimestamp,
   setSeekTimestamp,
-}: TabsProps) => {
+}) => {
   const [activeTab, setActiveTab] = useState<Tab>("transcript");
 
   const {
@@ -107,3 +107,5 @@ export const Tabs = ({
     </div>
   );
 };
+
+export default Tabs;

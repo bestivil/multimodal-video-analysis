@@ -15,7 +15,7 @@ type BreakdownProps = {
   onSeek?: (timestamp: number) => void;
 };
 
-export function Breakdown({
+const Breakdown: React.FC<BreakdownProps> = ({
   data,
   loading,
   error,
@@ -23,7 +23,7 @@ export function Breakdown({
   timestamp,
   setTimestamp,
   onSeek,
-}: BreakdownProps) {
+}) => {
   useEffect(() => {
     if (url && data && Array.isArray(data)) {
       (async () => {
@@ -91,4 +91,6 @@ export function Breakdown({
     return null;
   }
   return <div>Unknown response</div>;
-}
+};
+
+export default Breakdown;

@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 
 import EmbedVideo from "@/pages/embed-video";
-import { Tabs } from "@/pages/tabs";
-import { VideoURLInput } from "@/pages/url-input";
+import Tabs from "@/pages/tabs";
+import VideoURLInput from "@/pages/url-input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import RecentVideos from "@/components/recent-videos";
 

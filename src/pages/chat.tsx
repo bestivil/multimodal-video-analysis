@@ -19,14 +19,14 @@ type ChatProps = {
   videoEndTime: number;
 };
 
-export function Chat({
+const Chat: React.FC<ChatProps> = ({
   url,
   transcript,
   breakdown,
   setTimestamp,
   onSeek,
   videoEndTime,
-}: ChatProps) {
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, setInput, handleSend, handleKeyDown } =
@@ -131,4 +131,6 @@ export function Chat({
       </form>
     </div>
   );
-}
+};
+
+export default Chat;

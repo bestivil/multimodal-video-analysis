@@ -22,7 +22,7 @@ type TranscriptProps = {
   onSeek?: (timestamp: number) => void;
 };
 
-export function Transcript({
+const Transcript: React.FC<TranscriptProps> = ({
   data,
   loading,
   error,
@@ -30,7 +30,7 @@ export function Transcript({
   timestamp,
   setTimestamp,
   onSeek,
-}: TranscriptProps) {
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
@@ -120,4 +120,6 @@ export function Transcript({
     return null;
   }
   return <div>Unknown response</div>;
-}
+};
+
+export default Transcript;

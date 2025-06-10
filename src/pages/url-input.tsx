@@ -4,11 +4,11 @@ import { CONST_PLACEHOLDER_URL } from "@/app/constants";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export function VideoURLInput({
-  setSubmittedURL,
-}: {
+type VideoURLInputProps = {
   setSubmittedURL: (url: string) => void;
-}) {
+};
+
+const VideoURLInput: React.FC<VideoURLInputProps> = ({ setSubmittedURL }) => {
   const [youtubeURL, setYoutubeURL] = useState<string>("");
 
   return (
@@ -32,4 +32,6 @@ export function VideoURLInput({
       </Button>
     </div>
   );
-}
+};
+
+export default VideoURLInput;
