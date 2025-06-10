@@ -12,6 +12,9 @@ function EmbedVideo({
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   function getYouTubeId(url: string): string | null {
+    if (!url || typeof url !== "string") {
+      return null;
+    }
     if (url.includes("youtu.be/")) {
       return url.split("youtu.be/")[1].split(/[?&]/)[0];
     }

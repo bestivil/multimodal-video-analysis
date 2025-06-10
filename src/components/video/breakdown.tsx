@@ -1,4 +1,4 @@
-import { Breakdown as BreakdownContentType } from "../app/hooks/useBreakdown";
+import { Breakdown as BreakdownContentType } from "@/app/hooks/useBreakdown";
 import { Button } from "@/components/ui/button";
 import { formatTime } from "@/lib/utils";
 import { useEffect } from "react";

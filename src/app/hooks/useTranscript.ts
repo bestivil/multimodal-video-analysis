@@ -1,4 +1,4 @@
-import { TranscriptItem } from "@/pages/transcript";
+import { TranscriptItem } from "@/components/video/transcript";
 import { useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
 
