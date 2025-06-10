@@ -11,9 +11,9 @@ import { Button } from "./ui/button";
 import { fetchVideoMetadata } from "@/app/hooks/useVideoMetadata";
 
 interface VideoData {
-  transcript?: any;
-  breakdown?: any;
-  chat?: any;
+  transcript?: string;
+  breakdown?: string;
+  chat?: string;
   thumbnail?: string;
   title?: string;
 }

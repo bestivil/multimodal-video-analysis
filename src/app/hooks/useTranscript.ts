@@ -1,3 +1,4 @@
+import { TranscriptItem } from "@/pages/transcript";
 import { useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
 
@@ -5,13 +6,22 @@ export const useTranscript = ({ URL }: { URL: string }) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["transcript", URL],
     queryFn: async () => {
-      const record = (await localforage.getItem<any>(URL)) || {};
-      if (record.transcript && record.transcript.length > 0) {
+      const record = await localforage.getItem<{
+        transcript: TranscriptItem[];
+      }>(URL);
+
+      if (record && record.transcript.length > 0) {
         return record.transcript;
       }
 
       const response = await fetch(`/api/get-transcript?URL=${URL}`);
       const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to fetch transcript");
+      }
+
+      await localforage.setItem(URL, { transcript: result.data });
       return result.data;
     },
     enabled: !!URL,
@@ -20,10 +30,10 @@ export const useTranscript = ({ URL }: { URL: string }) => {
     refetchOnWindowFocus: false,
   });
 
-  const loading = isLoading || (Array.isArray(data) && data.length === 0);
+  const loading = isLoading;
 
   return {
-    data,
+    data: loading ? undefined : data,
     loading,
     error,
     refetch,

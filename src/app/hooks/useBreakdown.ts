@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { TranscriptItem } from "@/pages/transcript";
 
 export type Breakdown = {
@@ -19,7 +18,6 @@ export const useBreakdown = ({
   const mergedTranscript = transcript
     ? transcript.map((item) => `${item.text}`).join(" \n\n")
     : " ";
-
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["breakdown", URL, transcript],

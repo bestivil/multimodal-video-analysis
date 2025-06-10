@@ -28,7 +28,6 @@ export const Tabs = ({
     data: transcriptData,
     loading: transcriptLoading,
     error: transcriptError,
-    refetch: refetchTranscript,
   } = useTranscript({
     URL: submittedURL,
   });
@@ -37,7 +36,6 @@ export const Tabs = ({
     data: breakdownData,
     loading: breakdownLoading,
     error: breakdownError,
-    refetch: refetchBreakdown,
   } = useBreakdown({
     URL: submittedURL,
     transcript: transcriptData || undefined,
@@ -47,22 +45,6 @@ export const Tabs = ({
     ? transcriptData[transcriptData.length - 1].start +
       transcriptData[transcriptData.length - 1].duration
     : 0;
-
-  useEffect(() => {
-    if (!transcriptData || transcriptLoading) {
-      refetchTranscript();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (
-      !breakdownData ||
-      breakdownLoading ||
-      (Array.isArray(breakdownData) && breakdownData.length === 0)
-    ) {
-      refetchBreakdown();
-    }
-  }, []);
 
   return (
     <div className={`w-full min-w-[40%] max-w-2xl `}>
