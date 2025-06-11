@@ -20,17 +20,11 @@ export const useBreakdown = ({
     : " ";
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["breakdown", URL, transcript],
+    queryKey: ["breakdown", URL, mergedTranscript],
     queryFn: async () => {
-      if (mergedTranscript.trim().length === 0) {
-        return {
-          data: undefined,
-          loading: false,
-          error: null,
-        };
-      }
       const response = await fetch(`/api/get-breakdown?URL=${URL}`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ transcript: mergedTranscript }),
       });
 

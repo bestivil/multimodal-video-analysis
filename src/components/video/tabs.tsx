@@ -1,9 +1,11 @@
 import Breakdown from "./breakdown";
 import Transcript from "./transcript";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Chat from "./chat";
 import { useBreakdown } from "@/app/hooks/useBreakdown";
 import { useTranscript } from "@/app/hooks/useTranscript";
+import { LocalStore, useLocalStore } from "@/app/hooks/useLocalStore";
+import { TranscriptResponse } from "youtube-transcript";
 
 const TABS = ["transcript", "breakdown", "chat"] as const;
 type Tab = (typeof TABS)[number];
@@ -22,6 +24,11 @@ const Tabs: React.FC<TabsProps> = ({
   setSeekTimestamp,
 }) => {
   const [activeTab, setActiveTab] = useState<Tab>("transcript");
+  const { data: localStore } = useLocalStore(submittedURL);
+
+  useEffect(() => {
+    setActiveTab("transcript");
+  }, [submittedURL]);
 
   const {
     data: transcriptData,
@@ -39,7 +46,10 @@ const Tabs: React.FC<TabsProps> = ({
     refetch: refetchBreakdown,
   } = useBreakdown({
     URL: submittedURL,
-    transcript: transcriptData || undefined,
+    transcript:
+      transcriptData ||
+      (localStore?.transcript as unknown as TranscriptResponse[]) ||
+      undefined,
   });
 
   const videoEndTime = transcriptData?.length
