@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { TranscriptItem } from "@/components/video/transcript";
+import { TranscriptResponse } from "youtube-transcript";
 
 export type Breakdown = {
   startTime: number;
@@ -13,7 +13,7 @@ export const useBreakdown = ({
   transcript,
 }: {
   URL: string;
-  transcript: TranscriptItem[] | undefined;
+  transcript: TranscriptResponse[] | undefined;
 }) => {
   const mergedTranscript = transcript
     ? transcript.map((item) => `${item.text}`).join(" \n\n")

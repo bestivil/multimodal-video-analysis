@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import Breakdown from "./breakdown";
 import Transcript from "./transcript";
 import { useState } from "react";
@@ -44,7 +43,7 @@ const Tabs: React.FC<TabsProps> = ({
   });
 
   const videoEndTime = transcriptData?.length
-    ? transcriptData[transcriptData.length - 1].start +
+    ? transcriptData[transcriptData.length - 1].offset +
       transcriptData[transcriptData.length - 1].duration
     : 0;
 

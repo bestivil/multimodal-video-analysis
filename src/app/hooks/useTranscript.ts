@@ -1,20 +1,20 @@
-import { TranscriptItem } from "@/components/video/transcript";
 import { useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
+import { TranscriptResponse } from "youtube-transcript";
 
 export const useTranscript = ({ URL }: { URL: string }) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["transcript", URL],
     queryFn: async () => {
       const record = await localforage.getItem<{
-        transcript: TranscriptItem[];
+        transcript: TranscriptResponse[];
       }>(URL);
 
       if (record && record.transcript.length > 0) {
         return record.transcript;
       }
 
-      const response = await fetch(`/api/get-transcript?URL=${URL}`);
+      const response = await fetch(`/api/get-transcript?id=${URL}`);
       const result = await response.json();
 
       if (!result.success) {
@@ -22,7 +22,7 @@ export const useTranscript = ({ URL }: { URL: string }) => {
       }
 
       await localforage.setItem(URL, { transcript: result.data });
-      return result.data;
+      return result.data as TranscriptResponse[];
     },
     enabled: !!URL,
     staleTime: Infinity,
@@ -30,11 +30,9 @@ export const useTranscript = ({ URL }: { URL: string }) => {
     refetchOnWindowFocus: false,
   });
 
-  const loading = isLoading;
-
   return {
-    data: loading ? undefined : data,
-    loading,
+    data,
+    loading: isLoading,
     error,
     refetch,
   };

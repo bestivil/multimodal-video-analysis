@@ -5,16 +5,10 @@ import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 import localforage from "localforage";
 import ErrorComponent from "../error-component";
-
-export type TranscriptItem = {
-  text: string;
-  duration: number;
-  offset: number;
-  lang: string;
-};
+import { TranscriptResponse } from "youtube-transcript";
 
 type TranscriptProps = {
-  data: TranscriptItem[] | undefined;
+  data: TranscriptResponse[] | undefined;
   loading: boolean;
   error: Error | null;
   url: string;
@@ -50,7 +44,7 @@ const Transcript: React.FC<TranscriptProps> = ({
         try {
           const record =
             (await localforage.getItem<{
-              transcript: TranscriptItem[];
+              transcript: TranscriptResponse[];
             }>(url)) || {};
           record.transcript = data;
           await localforage.setItem(url, record);
@@ -80,7 +74,7 @@ const Transcript: React.FC<TranscriptProps> = ({
         ref={containerRef}
         className="relative max-h-[500px] overflow-y-auto space-y-2 max-w-2xl mx-auto mt-8"
       >
-        {data.map((item: TranscriptItem, idx: number) => {
+        {data.map((item: TranscriptResponse, idx: number) => {
           const isActive =
             item.offset <= timestamp &&
             (typeof data[idx + 1] === "undefined" ||
