@@ -28,6 +28,7 @@ const Tabs: React.FC<TabsProps> = ({
     data: transcriptData,
     loading: transcriptLoading,
     error: transcriptError,
+    refetch: refetchTranscript,
   } = useTranscript({
     URL: submittedURL,
   });
@@ -36,6 +37,7 @@ const Tabs: React.FC<TabsProps> = ({
     data: breakdownData,
     loading: breakdownLoading,
     error: breakdownError,
+    refetch: refetchBreakdown,
   } = useBreakdown({
     URL: submittedURL,
     transcript: transcriptData || undefined,
@@ -58,7 +60,7 @@ const Tabs: React.FC<TabsProps> = ({
             <div
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 text-center cursor-pointer py-2 transition-colors hover:bg-muted/30 transition-all
+              className={`flex-1 text-center cursor-pointer py-2 transition-colors dark:hover:bg-muted/30 hover:bg-muted transition-all
                 ${
                   activeTab === tab
                     ? "border-b-2 border-b-muted-foreground font-semibold text-muted-foreground"
@@ -86,6 +88,7 @@ const Tabs: React.FC<TabsProps> = ({
               timestamp={timestamp}
               setTimestamp={setTimestamp}
               onSeek={setSeekTimestamp}
+              refetchTranscript={refetchTranscript}
             />
           ))}
         {activeTab === "breakdown" && (
@@ -97,6 +100,7 @@ const Tabs: React.FC<TabsProps> = ({
             timestamp={timestamp}
             setTimestamp={setTimestamp}
             onSeek={setSeekTimestamp}
+            refetchBreakdown={refetchBreakdown}
           />
         )}
 

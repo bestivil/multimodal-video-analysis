@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "./ui/button";
 import { fetchVideoMetadata } from "@/app/hooks/useVideoMetadata";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 interface VideoData {
   transcript?: string;
@@ -148,6 +149,8 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
                     </button>
                   </div>
                   <FontAwesomeIcon
+                    data-tooltip-id="delete-item"
+                    data-tooltip-content="Delete item"
                     icon={faTrash}
                     onClick={() => {
                       localforage.removeItem(url);
@@ -160,6 +163,7 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
             })}
         </ul>
       </div>
+      <ReactTooltip id="delete-item" place="top" variant="error" />
     </div>
   );
 }

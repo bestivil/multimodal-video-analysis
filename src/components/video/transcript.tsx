@@ -4,6 +4,7 @@ import { formatTime } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 import localforage from "localforage";
+import ErrorComponent from "../error-component";
 
 export type TranscriptItem = {
   text: string;
@@ -20,6 +21,7 @@ type TranscriptProps = {
   timestamp: number;
   setTimestamp: (timestamp: number) => void;
   onSeek?: (timestamp: number) => void;
+  refetchTranscript?: () => void;
 };
 
 const Transcript: React.FC<TranscriptProps> = ({
@@ -30,6 +32,7 @@ const Transcript: React.FC<TranscriptProps> = ({
   timestamp,
   setTimestamp,
   onSeek,
+  refetchTranscript,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
@@ -63,7 +66,12 @@ const Transcript: React.FC<TranscriptProps> = ({
     return <LoadingAnimation />;
   }
   if (error) {
-    return <div className="text-red-500">Error: {error.message}</div>;
+    return (
+      <ErrorComponent
+        message={error.message}
+        refetchTranscript={refetchTranscript}
+      />
+    );
   }
 
   if (data && Array.isArray(data)) {
