@@ -53,16 +53,23 @@ const Tabs: React.FC<TabsProps> = ({
           !submittedURL && "opacity-50 pointer-events-none select-none"
         }`}
       >
-        {TABS.map((tab) => (
-          <Button
-            key={tab}
-            variant="secondary"
-            onClick={() => setActiveTab(tab)}
-            className={activeTab === tab ? "border-b-2" : ""}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </Button>
-        ))}
+        <div className="flex w-full  dark:border-gray-700">
+          {TABS.map((tab) => (
+            <div
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 text-center cursor-pointer py-2 transition-colors hover:bg-muted/30 transition-all
+                ${
+                  activeTab === tab
+                    ? "border-b-2 border-b-muted-foreground font-semibold text-muted-foreground"
+                    : "text-gray-500 dark:text-gray-400 hover:text-muted-foreground"
+                }
+              `}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </div>
+          ))}
+        </div>
       </div>
       <div>
         {activeTab === "transcript" &&

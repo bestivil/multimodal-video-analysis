@@ -2,11 +2,7 @@
 import { useEffect, useState } from "react";
 import localforage from "localforage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChevronDown,
-  faCirclePlay,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "./ui/button";
 import { fetchVideoMetadata } from "@/app/hooks/useVideoMetadata";
 
@@ -61,7 +57,7 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
         width: "100%",
         minHeight: isOpen ? undefined : `${Math.max(120, 64 + 56 * 1)}px`,
         transition: "min-height 0.2s",
-        overflow: "hidden",
+        overflow: isOpen ? "auto" : "hidden",
         boxSizing: "border-box",
       }}
     >
@@ -129,7 +125,8 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
               return (
                 <li
                   key={url}
-                  className="flex items-center justify-between gap-4 p-2 rounded hover:bg-muted-background/5 dark:hover:bg-gray-800/10 transition"
+                  className="flex items-center justify-between gap-4 p-2 rounded hover:bg-muted-background/5 dark:hover:bg-gray-800/10 transition cursor-pointer"
+                  onClick={() => setSubmittedURL(url)}
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {video.thumbnail ? (
@@ -146,16 +143,10 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
                     <button
                       className="text-left truncate dark:text-white/80 text-black/80 hover:underline font-medium flex-1"
                       style={{ maxWidth: "16rem" }}
-                      onClick={() => setSubmittedURL(url)}
                     >
                       {video.title ? video.title : url.slice(0, 20) + "..."}
                     </button>
                   </div>
-                  <FontAwesomeIcon
-                    icon={faCirclePlay}
-                    onClick={() => setSubmittedURL(url)}
-                    className="cursor-pointer hover:bg-muted-background rounded-md p-1"
-                  />
                   <FontAwesomeIcon
                     icon={faTrash}
                     onClick={() => {
