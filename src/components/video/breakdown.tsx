@@ -1,12 +1,13 @@
 import { Breakdown as BreakdownContentType } from "@/app/hooks/useBreakdown";
 import { Button } from "@/components/ui/button";
 import { formatTime } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import localforage from "localforage";
 import { LoadingAnimation } from "@/components/loading-animations";
 import ErrorComponent from "../error-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { useTheme } from "next-themes";
 
 type BreakdownProps = {
   data: BreakdownContentType[] | undefined;
@@ -29,6 +30,10 @@ const Breakdown: React.FC<BreakdownProps> = ({
   onSeek,
   refetchBreakdown,
 }) => {
+  const { theme } = useTheme();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (url && data && Array.isArray(data)) {
       (async () => {
@@ -45,6 +50,12 @@ const Breakdown: React.FC<BreakdownProps> = ({
       })();
     }
   }, [url, data]);
+
+  useEffect(() => {
+    if (activeRef.current && containerRef.current) {
+      activeRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [timestamp]);
 
   if (!url) return null;
   if (loading) {
@@ -63,28 +74,32 @@ const Breakdown: React.FC<BreakdownProps> = ({
     return (
       <>
         {data.length > 0 && (
-          <div
-            className="flex items-center justify-center md:justify-end mx-4"
-            onClick={() => {
-              refetchBreakdown?.();
-            }}
-          >
-            <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded select-none flex flex-row items-center gap-2 cursor-pointer">
+          <div className="flex items-center justify-center md:justify-end mx-4">
+            <span
+              className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded select-none flex flex-row items-center gap-2 cursor-pointer"
+              onClick={() => {
+                refetchBreakdown?.();
+              }}
+            >
               <FontAwesomeIcon icon={faWandMagicSparkles} />
               Regenerate with AI
             </span>
           </div>
         )}
-        <div className="space-y-2 max-w-2xl mx-auto mt-8">
+        <div
+          ref={containerRef}
+          className="relative max-h-[500px] overflow-y-auto space-y-2 max-w-2xl mx-auto mt-8"
+        >
           {data.map((item) => {
             const isActive =
               item.startTime <= timestamp && timestamp < item.endTime;
             return (
               <div
+                ref={isActive ? activeRef : null}
                 key={item.startTime}
-                className={`rounded p-4 mb-2 hover:cursor-pointer ${
-                  isActive ? "bg-gray-200" : ""
-                }`}
+                className={`rounded p-4 mb-2 hover:cursor-pointer hover:bg-muted-foreground/10 ${
+                  isActive ? "bg-muted-foreground/10" : ""
+                } ${theme === "dark" ? "bg-muted-foreground/5" : ""}`}
                 onClick={() => {
                   setTimestamp(item.startTime);
                   if (onSeek) {

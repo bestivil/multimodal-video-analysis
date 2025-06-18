@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
-import { TranscriptResponse } from "youtube-transcript";
+import { TranscriptResponse } from "../constants";
 
 export type LocalStore = {
   transcript: TranscriptResponse[];

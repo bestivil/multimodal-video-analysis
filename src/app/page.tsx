@@ -15,7 +15,7 @@ function Home() {
   const [submittedURL, setSubmittedURL] = useState<string>("");
   const [timestamp, setTimestamp] = useState<number>(0);
   const [seekTimestamp, setSeekTimestamp] = useState<number | null>(null);
-
+  const [keys, setKeys] = useState<string[]>([]);
   useEffect(() => {
     setSeekTimestamp(null);
   }, [submittedURL]);
@@ -31,9 +31,14 @@ function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-2 gap-y-4 justify-between w-full h-full">
+          <div className="flex flex-col md:flex-row gap-8 gap-y-4 justify-around w-full h-full">
             <div className="flex flex-col gap-4 w-full">
-              <RecentVideos setSubmittedURL={setSubmittedURL} />
+              <RecentVideos
+                submittedURL={submittedURL}
+                setSubmittedURL={setSubmittedURL}
+                keys={keys}
+                setKeys={setKeys}
+              />
               <EmbedVideo
                 url={submittedURL}
                 onTimeUpdate={setTimestamp}
@@ -45,6 +50,7 @@ function Home() {
               timestamp={timestamp}
               setTimestamp={setTimestamp}
               setSeekTimestamp={setSeekTimestamp}
+              setKeys={setKeys}
             />
           </div>
         </div>

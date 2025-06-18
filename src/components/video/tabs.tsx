@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import Chat from "./chat";
 import { useBreakdown } from "@/app/hooks/useBreakdown";
 import { useTranscript } from "@/app/hooks/useTranscript";
-import { LocalStore, useLocalStore } from "@/app/hooks/useLocalStore";
-import { TranscriptResponse } from "youtube-transcript";
-
 const TABS = ["transcript", "breakdown", "chat"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -15,6 +12,7 @@ type TabsProps = {
   timestamp: number;
   setTimestamp: (timestamp: number) => void;
   setSeekTimestamp: (timestamp: number) => void;
+  setKeys: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const Tabs: React.FC<TabsProps> = ({
@@ -22,9 +20,9 @@ const Tabs: React.FC<TabsProps> = ({
   timestamp,
   setTimestamp,
   setSeekTimestamp,
+  setKeys,
 }) => {
   const [activeTab, setActiveTab] = useState<Tab>("transcript");
-  const { data: localStore } = useLocalStore(submittedURL);
 
   useEffect(() => {
     setActiveTab("transcript");
@@ -37,6 +35,7 @@ const Tabs: React.FC<TabsProps> = ({
     refetch: refetchTranscript,
   } = useTranscript({
     URL: submittedURL,
+    setKeys,
   });
 
   const {
@@ -46,14 +45,11 @@ const Tabs: React.FC<TabsProps> = ({
     refetch: refetchBreakdown,
   } = useBreakdown({
     URL: submittedURL,
-    transcript:
-      transcriptData ||
-      (localStore?.transcript as unknown as TranscriptResponse[]) ||
-      undefined,
+    transcript: transcriptData || undefined,
   });
 
   const videoEndTime = transcriptData?.length
-    ? transcriptData[transcriptData.length - 1].offset +
+    ? transcriptData[transcriptData.length - 1].start +
       transcriptData[transcriptData.length - 1].duration
     : 0;
 

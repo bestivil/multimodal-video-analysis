@@ -7,12 +7,12 @@ import {
   ProcessedChatMessage,
 } from "@/app/hooks/useChatManager";
 import { Breakdown as BreakdownContentType } from "@/app/hooks/useBreakdown";
-import { TranscriptItem } from "./transcript";
 import { formatTime } from "@/lib/utils";
+import { TranscriptResponse } from "@/app/constants";
 
 type ChatProps = {
   url: string;
-  transcript: TranscriptItem[] | undefined;
+  transcript: TranscriptResponse[] | undefined;
   breakdown: BreakdownContentType[] | undefined;
   setTimestamp: (timestamp: number) => void;
   onSeek: (timestamp: number) => void;
@@ -29,13 +29,15 @@ const Chat: React.FC<ChatProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, setInput, handleSend, handleKeyDown } =
+  const { messages, input, setInput, handleSend, handleKeyDown, loading } =
     useChatManager({
       url,
       transcript: transcript?.map((item) => item.text).join(" \n\n"),
       breakdown: breakdown?.map((item) => item.summary).join(" \n\n"),
       videoEndTime,
     });
+
+  console.log(messages);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -111,6 +113,16 @@ const Chat: React.FC<ChatProps> = ({
             </div>
           );
         })}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-200 text-gray-800 p-4 rounded-lg max-w-[75%]">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">Thinking...</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <form
         onSubmit={(e) => {

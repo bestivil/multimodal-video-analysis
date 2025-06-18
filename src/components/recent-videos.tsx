@@ -16,18 +16,40 @@ interface VideoData {
 }
 
 type RecentVideosProps = {
+  submittedURL: string;
   setSubmittedURL: (url: string) => void;
+  keys: string[];
+  setKeys: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
-export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
-  const [recentKeys, setRecentKeys] = useState<string[]>([]);
+export default function RecentVideos({
+  submittedURL,
+  setSubmittedURL,
+  keys,
+  setKeys,
+}: RecentVideosProps) {
   const [videoData, setVideoData] = useState<Record<string, VideoData>>({});
   const [isOpen, setIsOpen] = useState(true);
+  const handleDeletion = async (
+    e: React.MouseEvent<SVGSVGElement>,
+    url: string
+  ) => {
+    e.stopPropagation();
+    await localforage.removeItem(url);
+    setKeys((prevKeys) => prevKeys.filter((key) => key !== url));
+    setVideoData((prevData) => {
+      const newData = { ...prevData };
+      delete newData[url];
+      return newData;
+    });
+  };
 
   useEffect(() => {
+    let isMounted = true;
     async function loadRecent() {
       const keys = (await localforage.keys()) as string[];
-      setRecentKeys(keys);
+      if (!isMounted) return;
+      setKeys(keys);
       const dataRecord: Record<string, VideoData> = {};
       for (const key of keys) {
         const item = await localforage.getItem<VideoData>(key);
@@ -35,21 +57,39 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
           dataRecord[key] = item;
         }
       }
-      setVideoData(dataRecord);
+      if (isMounted) setVideoData(dataRecord);
     }
     loadRecent();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [submittedURL]);
 
-  Object.keys(videoData).map(async (key) => {
-    const { title, thumbnail } = await fetchVideoMetadata(key);
-    videoData[key].title = title;
-    videoData[key].thumbnail = thumbnail;
-    if (title || thumbnail) {
-      localforage.setItem(key, videoData[key]);
+  useEffect(() => {
+    async function updateMetadata() {
+      const updates: Record<string, VideoData> = {};
+      await Promise.all(
+        keys.map(async (key) => {
+          const video = videoData[key] || {};
+          if (!video.title || !video.thumbnail) {
+            const { title, thumbnail } = await fetchVideoMetadata(key);
+            if (title || thumbnail) {
+              const updated = { ...video, title, thumbnail };
+              await localforage.setItem(key, updated);
+              updates[key] = updated;
+            }
+          }
+        })
+      );
+      if (Object.keys(updates).length > 0) {
+        setVideoData((prev) => ({ ...prev, ...updates }));
+      }
     }
-
-    return videoData[key];
-  });
+    if (keys.length > 0) {
+      updateMetadata();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keys, videoData]);
 
   return (
     <div
@@ -66,7 +106,7 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
         <h2 className="text-2xl font-bold flex-auto">
           Recents{" "}
           <span className="text-sm text-gray-500">
-            {recentKeys.length > 0 ? `(${recentKeys.length})` : ""}
+            {keys.length > 0 ? `(${keys.length})` : ""}
           </span>
         </h2>
         <Button
@@ -82,19 +122,19 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
 
       <div
         className={`flex flex-row items-center rounded transition ${
-          recentKeys.length > 0 ? "-space-x-6" : ""
+          keys.length > 0 ? "-space-x-6" : ""
         }`}
       >
-        {recentKeys.length === 0 && (
+        {keys.length === 0 && (
           <div className="flex flex-row items-center justify-center rounded transition">
             <span className="flex flex-row items-center text-gray-500 text-sm">
               No recent videos - add a video to get started
             </span>
           </div>
         )}
-        {!isOpen && recentKeys.length > 0 && (
+        {!isOpen && keys.length > 0 && (
           <>
-            {recentKeys.slice(-5).map((url, index) => {
+            {keys.slice(-5).map((url, index) => {
               const video = videoData[url] || {};
               return (
                 <div key={index}>
@@ -121,7 +161,7 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
       >
         <ul className="space-y-4">
           {isOpen &&
-            [...recentKeys].reverse().map((url) => {
+            [...keys].reverse().map((url) => {
               const video = videoData[url] || {};
               return (
                 <li
@@ -152,10 +192,7 @@ export default function RecentVideos({ setSubmittedURL }: RecentVideosProps) {
                     data-tooltip-id="delete-item"
                     data-tooltip-content="Delete item"
                     icon={faTrash}
-                    onClick={() => {
-                      localforage.removeItem(url);
-                      setRecentKeys(recentKeys.filter((key) => key !== url));
-                    }}
+                    onClick={(e) => handleDeletion(e, url)}
                     className="cursor-pointer hover:bg-muted-background rounded-md p-1"
                   />
                 </li>

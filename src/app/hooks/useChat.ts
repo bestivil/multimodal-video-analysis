@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export type ChatMessage = {
   sender: "user" | "assistant";
@@ -33,40 +32,37 @@ export const useChat = ({
   history,
   videoEndTime,
 }: useChatProps) => {
-  const apiKey = process.env.GEMINI_API_KEY as string;
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    systemInstruction: `You are a helpful assistant. The following YouTube video has URL: ${url} and transcript: ${transcript}, and breakdown: ${breakdown}. Use this information to answer the user's questions. Only respond with JSON with the structure: {response: string, sections: {startTimestamp: number, endTimestamp: number, summary: string, title: string}[]} where response is the main response to the user's question and sections is an array of sections of the video that are relevant to the user's question. The video ends at ${videoEndTime} seconds.`,
-  });
-
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["chat", url, transcript],
+    queryKey: ["chat", url, transcript, breakdown, history, videoEndTime],
     queryFn: async () => {
       if (!url || !transcript || !breakdown) {
         throw new Error("Missing URL, transcript, or breakdown");
       }
 
-      const contents = [
-        ...history.map((msg) => ({
-          role: msg.sender === "user" ? "user" : "assistant",
-          parts: [{ text: msg.content }],
-        })),
+      const res = await fetch(
+        `/api/get-chat?URL=${encodeURIComponent(url)}`,
         {
-          role: "user",
-          parts: [{ text: prompt }],
-        },
-      ];
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt,
+            transcript,
+            breakdown,
+            history,
+            videoEndTime,
+          }),
+        }
+      );
 
-      const response = await model.generateContent({ contents });
-      const rawText = await response.response
-        .text()
-        .replace(/^```json\s*/, "")
-        .replace(/```[\s\n]*$/g, "")
-        .trim();
+      const result = await res.json();
 
-      const json = JSON.parse(rawText);
-      return json;
+      if (!result.success) {
+        throw new Error(result.error || "Failed to get chat response");
+      }
+
+      return result.data;
     },
     enabled: !!url && !!transcript && !!breakdown && !!history,
     staleTime: Infinity,

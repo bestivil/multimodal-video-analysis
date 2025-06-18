@@ -1,9 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
-import { TranscriptResponse } from "youtube-transcript";
+import { BACKEND_URL, TranscriptResponse } from "../constants";
 
-export const useTranscript = ({ URL }: { URL: string }) => {
-  const { data, isLoading, error, refetch } = useQuery({
+export const useTranscript = ({
+  URL,
+  setKeys,
+}: {
+  URL: string;
+  setKeys: React.Dispatch<React.SetStateAction<string[]>>;
+}) => {
+  const { data, isFetching, error, refetch } = useQuery({
     queryKey: ["transcript", URL],
     queryFn: async () => {
       const record = await localforage.getItem<{
@@ -11,18 +17,21 @@ export const useTranscript = ({ URL }: { URL: string }) => {
       }>(URL);
 
       if (record && record.transcript.length > 0) {
-        return record.transcript;
+        return record.transcript as TranscriptResponse[];
       }
 
-      const response = await fetch(`/api/get-transcript?id=${URL}`);
+      const response = await fetch(
+        `${BACKEND_URL}/get_transcript?video_url=${URL}`
+      );
       const result = await response.json();
 
-      if (!result.success) {
+      if (!response.ok) {
         throw new Error(result.error || "Failed to fetch transcript");
       }
 
-      await localforage.setItem(URL, { transcript: result.data });
-      return result.data as TranscriptResponse[];
+      await localforage.setItem(URL, { transcript: result.transcript });
+      setKeys((prevKeys) => [...prevKeys, URL]);
+      return result.transcript as TranscriptResponse[];
     },
     enabled: !!URL,
     staleTime: Infinity,
@@ -32,7 +41,7 @@ export const useTranscript = ({ URL }: { URL: string }) => {
 
   return {
     data,
-    loading: isLoading,
+    loading: isFetching,
     error,
     refetch,
   };

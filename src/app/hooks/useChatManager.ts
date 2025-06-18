@@ -1,6 +1,3 @@
-/**
- * Manages chat messages, input, and assistant responses.
- */
 import { useState, useEffect, KeyboardEvent } from "react";
 import { ChatMessage, useChat, ChatResponse } from "./useChat";
 
@@ -17,9 +14,6 @@ type UseChatManagerProps = {
   videoEndTime: number;
 };
 
-/**
- * Hook to manage chat state, sending prompts, and processing assistant responses.
- */
 export function useChatManager({
   url,
   transcript,
@@ -51,12 +45,6 @@ export function useChatManager({
   }, [pending, refetch]);
 
   useEffect(() => {
-    if (loading && pending) {
-      setMessages((prev) => [...prev, { sender: "assistant", content: "..." }]);
-    }
-  }, [loading, pending]);
-
-  useEffect(() => {
     if (pending && !loading && rawResponse) {
       let content: string;
       let sections: Section[] | undefined;
@@ -69,7 +57,6 @@ export function useChatManager({
         content = rawResponse as string;
       }
 
-      console.log({ content, sections });
       setMessages((prev) => {
         const newPrev = [...prev];
         const last = newPrev[newPrev.length - 1];
@@ -105,5 +92,5 @@ export function useChatManager({
     }
   };
 
-  return { messages, input, setInput, handleSend, handleKeyDown };
+  return { messages, input, setInput, handleSend, handleKeyDown, loading };
 }

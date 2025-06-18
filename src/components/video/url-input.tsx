@@ -12,6 +12,7 @@ const VideoURLInput: React.FC<VideoURLInputProps> = ({ setSubmittedURL }) => {
   const [youtubeURL, setYoutubeURL] = useState<string>("");
 
   const handleSubmit = () => {
+    setYoutubeURL("");
     setSubmittedURL(
       youtubeURL.trim().length === 0 ? CONST_PLACEHOLDER_URL : youtubeURL
     );

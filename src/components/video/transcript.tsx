@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 import localforage from "localforage";
 import ErrorComponent from "../error-component";
-import { TranscriptResponse } from "youtube-transcript";
+import { TranscriptResponse } from "@/app/constants";
 
 type TranscriptProps = {
   data: TranscriptResponse[] | undefined;
@@ -76,9 +76,9 @@ const Transcript: React.FC<TranscriptProps> = ({
       >
         {data.map((item: TranscriptResponse, idx: number) => {
           const isActive =
-            item.offset <= timestamp &&
+            item.start <= timestamp &&
             (typeof data[idx + 1] === "undefined" ||
-              timestamp < data[idx + 1].offset);
+              timestamp < data[idx + 1].start);
           return (
             <div
               ref={isActive ? activeRef : null}
@@ -87,9 +87,9 @@ const Transcript: React.FC<TranscriptProps> = ({
                 isActive ? "bg-muted-foreground/10" : ""
               } ${theme === "dark" ? "bg-muted-foreground/5" : ""} `}
               onClick={() => {
-                setTimestamp(item.offset);
+                setTimestamp(item.start);
                 if (onSeek) {
-                  onSeek(item.offset);
+                  onSeek(item.start);
                 }
               }}
             >
@@ -98,7 +98,7 @@ const Transcript: React.FC<TranscriptProps> = ({
                   variant="ghost"
                   className="min-w-[48px] text-xs text-gray-600"
                 >
-                  {formatTime(item.offset)}
+                  {formatTime(item.start)}
                 </Button>
                 <span>{item.text}</span>
               </div>
