@@ -29,6 +29,12 @@ export const useTranscript = ({
         throw new Error(result.error || "Failed to fetch transcript");
       }
 
+      if (result.detail && result.detail.includes("YouTube is blocking")) {
+        throw new Error(
+          "Internal Server error - issue Google is blocking requests from Cloud servers. Please try again later - https://shorturl.at/3pZSO"
+        );
+      }
+
       await localforage.setItem(URL, { transcript: result.transcript });
       setKeys((prevKeys) => [...prevKeys, URL]);
       return result.transcript as TranscriptResponse[];
