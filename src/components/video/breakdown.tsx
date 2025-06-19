@@ -44,9 +44,7 @@ const Breakdown: React.FC<BreakdownProps> = ({
             }>(url)) || {};
           record.breakdown = data;
           await localforage.setItem(url, record);
-        } catch (error) {
-          console.error("Failed to save breakdown for recent videos:", error);
-        }
+        } catch (error) {}
       })();
     }
   }, [url, data]);

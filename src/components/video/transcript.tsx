@@ -48,9 +48,7 @@ const Transcript: React.FC<TranscriptProps> = ({
             }>(url)) || {};
           record.transcript = data;
           await localforage.setItem(url, record);
-        } catch (error) {
-          console.error("Failed to save transcript for recent videos:", error);
-        }
+        } catch (error) {}
       })();
     }
   }, [url, data]);

@@ -28,16 +28,23 @@ const Chat: React.FC<ChatProps> = ({
   videoEndTime,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const firstRender = useRef(true);
 
-  const { messages, input, setInput, handleSend, handleKeyDown, loading } =
-    useChatManager({
-      url,
-      transcript: transcript?.map((item) => item.text).join(" \n\n"),
-      breakdown: breakdown?.map((item) => item.summary).join(" \n\n"),
-      videoEndTime,
-    });
-
-  console.log(messages);
+  const {
+    messages,
+    input,
+    setInput,
+    handleSend,
+    handleKeyDown,
+    loading,
+    error,
+    refetch,
+  } = useChatManager({
+    url,
+    transcript: transcript?.map((item) => item.text).join(" \n\n"),
+    breakdown: breakdown?.map((item) => item.summary).join(" \n\n"),
+    videoEndTime,
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -55,18 +62,16 @@ const Chat: React.FC<ChatProps> = ({
             }>(url)) || {};
           record.chat = messages;
           await localforage.setItem(url, record);
-        } catch (error) {
-          console.error("Failed to save chat for recent videos:", error);
-        }
+        } catch (error) {}
       })();
     }
   }, [url, messages]);
 
   return (
-    <div className="w-full max-w-2xl flex flex-col">
+    <div className="w-full max-w-2xl flex flex-col h-full">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 h-[400px] border rounded"
+        className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[500px] border rounded"
       >
         {messages.map((msg: ProcessedChatMessage, idx) => {
           const isUser = msg.sender === "user";
@@ -113,6 +118,16 @@ const Chat: React.FC<ChatProps> = ({
             </div>
           );
         })}
+
+        {firstRender.current && messages.length === 0 && !loading && !error && (
+          <div className="flex justify-start">
+            <div className="bg-gray-200 text-gray-800 p-4 rounded-lg max-w-[75%]">
+              <span className="text-sm">
+                Please type a message to start chatting about this video.
+              </span>
+            </div>
+          </div>
+        )}
         {loading && (
           <div className="flex justify-start">
             <div className="bg-gray-200 text-gray-800 p-4 rounded-lg max-w-[75%]">
@@ -123,13 +138,28 @@ const Chat: React.FC<ChatProps> = ({
             </div>
           </div>
         )}
+        {error && (
+          <div className="flex justify-start">
+            <div
+              className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg max-w-[75%] cursor-pointer hover:bg-red-200 transition-colors"
+              onClick={() => refetch()}
+            >
+              <div className="flex items-center space-x-2">
+                <img src="/error.svg" alt="error" className="w-4 h-4" />
+                <span className="text-sm">
+                  Failed to get a response, press here to try again.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
         }}
-        className="flex mt-4 gap-2"
+        className="flex mt-4 gap-2 flex-shrink-0"
       >
         <Input
           type="text"

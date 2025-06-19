@@ -1,4 +1,4 @@
-import { useState, useEffect, KeyboardEvent } from "react";
+import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { ChatMessage, useChat, ChatResponse } from "./useChat";
 
 export type Section = ChatResponse["sections"][0];
@@ -24,10 +24,12 @@ export function useChatManager({
   const [input, setInput] = useState<string>("");
   const [currentPrompt, setCurrentPrompt] = useState<string>("");
   const [pending, setPending] = useState<boolean>(false);
+  const firstRender = useRef(true);
 
   const {
     data: rawResponse,
     loading,
+    error,
     refetch,
   } = useChat({
     prompt: currentPrompt,
@@ -39,7 +41,7 @@ export function useChatManager({
   });
 
   useEffect(() => {
-    if (pending) {
+    if (pending && !firstRender.current) {
       refetch();
     }
   }, [pending, refetch]);
@@ -73,6 +75,7 @@ export function useChatManager({
       });
       setCurrentPrompt("");
       setPending(false);
+      firstRender.current = false;
     }
   }, [rawResponse, loading, pending]);
 
@@ -92,5 +95,14 @@ export function useChatManager({
     }
   };
 
-  return { messages, input, setInput, handleSend, handleKeyDown, loading };
+  return {
+    messages,
+    input,
+    setInput,
+    handleSend,
+    handleKeyDown,
+    loading,
+    error,
+    refetch,
+  };
 }
