@@ -48,7 +48,9 @@ const Transcript: React.FC<TranscriptProps> = ({
             }>(url)) || {};
           record.transcript = data;
           await localforage.setItem(url, record);
-        } catch (error) {}
+        } catch (error) {
+          console.error(error);
+        }
       })();
     }
   }, [url, data]);

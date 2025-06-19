@@ -48,6 +48,7 @@ export async function POST(request: Request) {
   try {
     json = JSON.parse(cleaned);
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { success: false, error: "Failed to parse breakdown response." },
       { status: 500 }

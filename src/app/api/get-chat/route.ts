@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("URL");
-  const { transcript, breakdown, history, videoEndTime } = await request.json();
+  const { transcript, breakdown, videoEndTime } = await request.json();
 
   if (!id) {
     return NextResponse.json(
@@ -45,6 +45,7 @@ export async function POST(request: Request) {
   try {
     json = JSON.parse(cleaned);
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { success: false, error: "Failed to parse chat response." },
       { status: 500 }

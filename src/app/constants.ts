@@ -5,3 +5,5 @@ export type TranscriptResponse = {
   start: number;
   duration: number;
 };
+
+export const BACKEND_URL = "http://localhost:8080";

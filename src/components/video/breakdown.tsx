@@ -44,7 +44,9 @@ const Breakdown: React.FC<BreakdownProps> = ({
             }>(url)) || {};
           record.breakdown = data;
           await localforage.setItem(url, record);
-        } catch (error) {}
+        } catch (error) {
+          console.error(error);
+        }
       })();
     }
   }, [url, data]);

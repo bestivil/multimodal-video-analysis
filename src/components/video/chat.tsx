@@ -62,7 +62,9 @@ const Chat: React.FC<ChatProps> = ({
             }>(url)) || {};
           record.chat = messages;
           await localforage.setItem(url, record);
-        } catch (error) {}
+        } catch (error) {
+          console.error(error);
+        }
       })();
     }
   }, [url, messages]);
